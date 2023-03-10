@@ -45,8 +45,8 @@ imagesArray.forEach((elemento, indice) => {
     const newImageWrapper = `<div class="image-wrapper position-relative">
                                 <img class="image" src="${elemento.image}" />
                                 <div class="position-absolute bottom-0 end-0 text-white text-end pe-2">               
-                                    <h5 >${elemento.title}</h5>
-                                    <p>${elemento.text}</p>
+                                    <h5 class="ms_text_shadow">${elemento.title}</h5>
+                                    <p class="ms_text_shadow">${elemento.text}</p>
                                 </div>
                              </div>`;
     
