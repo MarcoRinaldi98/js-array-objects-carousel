@@ -2,7 +2,7 @@
     JAVASCRIPT
 */
 
-//array
+// Array di ogetti
 const imagesArray = [
     {
         image: "img/01.webp",
@@ -31,17 +31,20 @@ const imagesArray = [
     }
 ];
 
-//variabile dove verranno inserite le immagini del carousel
+
+// Dichiaro i miei contenitori di immagini del DOM
 const imageListDom = document.querySelector('.image-list'); 
 const imageSequence = document.querySelector('.image-sequence'); 
 
+// Dichiaro le variabili che conterranno gli elementi da inserire nei contenitori nel DOM
 let sliderContent = "";
 let sequenceContent = "";
 
-let images = imagesArray.forEach((elemento) => {
+// CICLO per creare gli elementi di sliderContent e sequenceContent
+imagesArray.forEach((elemento, indice) => {
     const newImageWrapper = `<div class="image-wrapper position-relative">
                                 <img class="image" src="${elemento.image}" />
-                                <div class="position-absolute bottom-0 start-0 text-white text-end pe-2">               
+                                <div class="position-absolute bottom-0 end-0 text-white text-end pe-2">               
                                     <h5 >${elemento.title}</h5>
                                     <p>${elemento.text}</p>
                                 </div>
@@ -49,81 +52,117 @@ let images = imagesArray.forEach((elemento) => {
     
     sliderContent += newImageWrapper;
 
-    const newImageSequence =    `<div class="box">
-                                    <img class="image" src="${elemento.image}" alt="Prima immagine">
-                                </div>`
+    const newImageSequence = document.createElement('div');
+    newImageSequence.classList.add('box');
+    newImageSequence.innerHTML = `<img class="image" src="${elemento.image}">`;
 
-    sequenceContent += newImageSequence;
+    //aggiungo un evento per gestire il cambio immagine sul click della miniatura
+    newImageSequence.addEventListener('click', function() {
+        imagesWrapperDom[activeImage].classList.remove('show');
+        imagesSequenceDom[activeImage].classList.remove('overlay');
+
+        activeImage = indice;
+        
+        imagesWrapperDom[activeImage].classList.add('show');
+        imagesSequenceDom[activeImage].classList.add('overlay');
+    })
+
+    imageSequence.append(newImageSequence);
 });
 
-//trasferisco la lista di tutti i div prodotti nel container nell'html
 imageListDom.innerHTML = sliderContent;
-console.log(imageListDom);
 
-imageSequence.innerHTML = sequenceContent;
-console.log(imageSequence);
 
 const imagesWrapperDom = document.getElementsByClassName('image-wrapper');
 const imagesSequenceDom = document.getElementsByClassName('box');
+console.log(imagesSequenceDom);
 
-//assegno il valore 0 per indicare la prima immagine della lista
+
 let activeImage = 0;
 
-//rendo solo la prima immagine della lista visibile
 imagesWrapperDom[activeImage].classList.add('show');
-//rendo l'overlay visibile solo sulla prima immagine della sequenza
 imagesSequenceDom[activeImage].classList.add('overlay');
 
-//variabile pulsante avanti
+// Dichiaro le veriabili per i pulsanti di avanti e indietro del DOM
 const nextDom = document.querySelector('#next');
-//variabile pulsante indietro
 const prevDom = document.querySelector('#prev');
 
 //evento per il click del pulsante avanti
-nextDom.addEventListener('click',
-    function() {
-        //rimuovo l'immagine corrente
-        imagesWrapperDom[activeImage].classList.remove('show');
-        //levo l'overlay dall'immagine corrente
-        imagesSequenceDom[activeImage].classList.remove('overlay');
+nextDom.addEventListener('click', handleNext);
+
+//evento per il click del pulsante indietro
+prevDom.addEventListener('click', handlePrev);
+
+
+let direction = 'next';
+
+//Gestione direzione autoplay
+const reverseDom = document.getElementById('reverse');
+reverseDom.addEventListener('click', function() {
+    if (direction == 'next') {
+        direction = 'prev';
+    } else {
+        direction = 'next';
+    }
+});
+
+//scorrimento automatico in avanti o indietro del carousel ogni 3 secondi
+let clock = setInterval(handleInterval, 3000);
+
+//Gestione start/stop 
+const startStopDom = document.getElementById('startStop');
+startStopDom.addEventListener('click', function() {
+    if (clock == null) {
+        clock = setInterval(handleInterval, 3000);
+    } else {
+        clearInterval(clock);
+        clock = null;
+    }
+});
+
+
+/*
+    FUNZIONI
+*/
+
+//FUNZIONE per la gestione della sequenza in avanti
+function handleNext() {
+    imagesWrapperDom[activeImage].classList.remove('show');
+    imagesSequenceDom[activeImage].classList.remove('overlay');
 
         if (activeImage < imagesWrapperDom.length - 1) {
-            //assegno un valore in piu all'immagine attuale per cambiarla con l'immagine successiva
             activeImage++;
 
         } else if (activeImage == imagesWrapperDom.length - 1) {
-            //assegno il vaore minimo della lista per farla ricominciare dall'inizio
             activeImage = 0;
         }
 
         
-        //mostro l'immagine successiva
-        imagesWrapperDom[activeImage].classList.add('show');
-        //attivo l'overlay sulla nuova immagine
-        imagesSequenceDom[activeImage].classList.add('overlay');
-    }
-);
+    imagesWrapperDom[activeImage].classList.add('show');
+    imagesSequenceDom[activeImage].classList.add('overlay');
+}
 
-//evento per il click del pulsante indietro
-prevDom.addEventListener('click',
-    function() {
-        //rimuovo l'immagine corrente
-        imagesWrapperDom[activeImage].classList.remove('show');
-        //levo l'overlay dall'immagine corrente
-        imagesSequenceDom[activeImage].classList.remove('overlay');
+//FUNZIONE per la gestione della sequenza all'indietro
+function handlePrev() {
+    imagesWrapperDom[activeImage].classList.remove('show');
+    imagesSequenceDom[activeImage].classList.remove('overlay');
 
         if (activeImage > 0) {
-            //assegno un valore in meno all'immagine attuale per cambiarla con l'immagine precedente
             activeImage--;
 
         } else if (activeImage == 0) {
-            //assegno il vaore massimo della lista per farla ricominciare della fine
             activeImage = (imagesWrapperDom.length - 1);
         }
 
-         //mostro l'immagine precedente
-         imagesWrapperDom[activeImage].classList.add('show');
-         //attivo l'overlay sulla nuova immagine
-         imagesSequenceDom[activeImage].classList.add('overlay');
+    imagesWrapperDom[activeImage].classList.add('show');
+    imagesSequenceDom[activeImage].classList.add('overlay');
+}
+
+//FUNZIONE per gestire il setInterval
+function handleInterval() {
+    if (direction == 'next') {
+        handleNext();
+    } else {
+        handlePrev();
     }
-);
+}
